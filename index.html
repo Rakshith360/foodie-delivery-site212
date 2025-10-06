@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -58,7 +58,7 @@
 <body class="bg-orange-50/50 text-gray-800">
 
     <!-- Loading Spinner Overlay -->
-    <div id="loader" class="fixed inset-0 bg-white bg-opacity-70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div id="loader" class="fixed inset-0 bg-white bg-opacity-70 backdrop-blur-sm z-50 flex items-center justify-center">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
     </div>
 
@@ -155,20 +155,20 @@
     <!-- Footer -->
     <footer class="bg-gray-800 text-white mt-20">
         <div class="container mx-auto px-6 py-4 text-center text-gray-400">
-            <p>&copy; 2025 Foodie Express. All Rights Reserved.</p>
+            <p>&copy; <span id="copyright-year">2025</span> Foodie Express. All Rights Reserved.</p>
         </div>
     </footer>
 
     <script type="module">
         // --- Firebase Imports ---
-        // We are using placeholder Firebase config. In a real app, you would
-        // replace this with your actual Firebase project configuration.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Configuration (Placeholder) ---
-        const firebaseConfig = {
+        // --- Firebase Configuration ---
+        // IMPORTANT: If you run this code outside the collaborative environment,
+        // replace the placeholder values below with your actual Firebase project configuration.
+        const placeholderFirebaseConfig = {
             apiKey: "AIzaSyB1hy_cOH3rlxEVQl3AGvnpJpFoC-a2Zng",
   authDomain: "foodie-delivery-site-1212.firebaseapp.com",
   projectId: "foodie-delivery-site-1212",
@@ -177,18 +177,28 @@
   appId: "1:1069261462305:web:bb1206ce8d42529f55bc60"
         };
         
+        let app, auth, db;
+        try {
+            // In the collaborative environment, config is provided automatically via __firebase_config.
+            // We use the placeholder config as a fallback.
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : placeholderFirebaseConfig;
+        
+             if (firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "PASTE_YOUR_API_KEY_HERE") {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                setLogLevel('debug');
+             } else {
+                console.warn("Firebase is not configured. Using placeholder keys. Real-time features will not work.");
+             }
+        } catch(e) {
+            console.error("Failed to initialize Firebase:", e);
+        }
+
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'foodie-express-app';
-
-        // Firebase Initialization
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // --- EmailJS Configuration (IMPORTANT!) ---
-        // To make email notifications work, you MUST create a free account at EmailJS.com,
-        // connect your email service (like Gmail), and create an email template.
-        // Then, replace the placeholder values below with your actual IDs.
-        const EMAILJS_SERVICE_ID = 'service_3xool9n';
+        
+        // --- EmailJS Configuration ---
+         const EMAILJS_SERVICE_ID = 'service_3xool9n';
         const EMAILJS_TEMPLATE_ID = 'template_7wquntw';
         const EMAILJS_PUBLIC_KEY = '4omNU308mvl1wWirS'; 
 
@@ -228,26 +238,47 @@
         };
         
         // --- AUTHENTICATION ---
-        onAuthStateChanged(auth, user => {
-            currentUser = user;
-            updateUIForAuthState();
-        });
+        const setupAuth = async () => {
+            if (!auth) {
+                updateUIForAuthState(null);
+                return;
+            };
 
-        const updateUIForAuthState = () => {
-            // This is simplified. A real app would have login/signup forms.
-            // For now, it just shows a logout button if a user is detected.
-            if (currentUser) {
+            onAuthStateChanged(auth, user => {
+                currentUser = user;
+                updateUIForAuthState(user);
+                // Also update user details in the checkout form if they are logged in
+                if (user && document.getElementById('checkout-name')) {
+                    document.getElementById('checkout-name').value = user.displayName || '';
+                }
+            });
+
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Authentication failed:", error);
+                showToast('Authentication failed. Some features might not work.', 'error');
+            }
+        };
+
+        const updateUIForAuthState = (user) => {
+            if (user) {
+                // Show user info and logout button
+                const userIdentifier = user.isAnonymous ? `Guest` : (user.displayName || user.email || 'User');
                 authContainer.innerHTML = `
-                    <button id="logout-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-300">Logout</button>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-gray-600 hidden sm:block">${userIdentifier}</span>
+                        <button id="logout-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-300">Logout</button>
+                    </div>
                 `;
                 document.getElementById('logout-button').addEventListener('click', handleLogout);
             } else {
-                authContainer.innerHTML = `
-                    <button id="login-nav-button" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-300">Login</button>
-                `;
-                document.getElementById('login-nav-button').addEventListener('click', () => {
-                    showToast('Login functionality is for demonstration.', 'info');
-                });
+                // If not logged in, there's no action to take. The app will try to sign in anonymously.
+                authContainer.innerHTML = `<span class="text-sm text-gray-500">Connecting...</span>`;
             }
         };
         
@@ -279,7 +310,6 @@
             } else {
                 cart.push({ ...item, quantity: 1 });
             }
-            showToast(`${item.name} added to cart!`);
             saveCartToStorage();
             updateCartUI();
         };
@@ -401,7 +431,8 @@
             try {
                 await signOut(auth);
                 showToast('Logged out successfully.', 'info');
-                showPage('home-page');
+                // Attempt to sign in anonymously again after logout
+                await signInAnonymously(auth);
             } catch(error) {
                 showToast(error.message, 'error');
             } finally {
@@ -411,6 +442,10 @@
         
         async function handlePlaceOrder(e) {
             e.preventDefault();
+            if (!db || !auth.currentUser) {
+                showToast('Cannot connect to service. Please refresh and try again.', 'error');
+                return;
+            }
             if (cart.length === 0) {
                 showToast('Your cart is empty.', 'info');
                 return;
@@ -422,17 +457,22 @@
                 address: document.getElementById('checkout-address').value,
                 phone: document.getElementById('checkout-phone').value,
                 customerEmail: currentUser?.email || 'guest@example.com',
+                userId: auth.currentUser.uid,
                 items: cart,
                 total: cart.reduce((s, i) => s + i.price * i.quantity, 0) + 2.00,
                 status: 'Placed',
-                createdAt: new Date()
+                createdAt: new Date().toISOString()
             };
 
             try {
                 // Save order to Firestore
                 const ordersCollectionPath = `/artifacts/${appId}/public/orders`;
                 await addDoc(collection(db, ordersCollectionPath), order);
-                await sendOrderEmail(order);
+                
+                // This part is optional, only works if EmailJS is configured.
+                if (EMAILJS_PUBLIC_KEY) {
+                    await sendOrderEmail(order);
+                }
                 
                 showToast('Order placed successfully!', 'success');
                 cart = [];
@@ -449,7 +489,6 @@
         
         // --- DATA FETCHING ---
         const fetchMenu = () => {
-            showLoader();
             // This is a hardcoded menu as requested.
             menuItems = [
                  { id: 'item1', name: 'Puri', description: 'Fluffy, deep-fried bread, perfect with curries.', price: 4.99, imageUrl: 'https://images.unsplash.com/photo-1626728043232-720a45446a2a?q=80&w=1974&auto=format&fit=crop' },
@@ -457,14 +496,12 @@
             ];
             
             renderMenu(menuItems);
-            hideLoader();
         };
 
         // --- EMAILJS INTEGRATION ---
         const sendOrderEmail = (order) => {
-            if (EMAILJS_PUBLIC_KEY === '4omNU308mvl1wWirS' || !EMAILJS_PUBLIC_KEY) {
+            if (!EMAILJS_PUBLIC_KEY) {
                 console.warn("EmailJS is not configured. Skipping email notification.");
-                // We resolve the promise so the rest of the order process continues
                 return Promise.resolve(); 
             }
 
@@ -496,12 +533,19 @@
         };
         
         // --- APP INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // BUG FIX: Set the copyright year dynamically.
+            document.getElementById('copyright-year').textContent = new Date().getFullYear();
+            
+            showLoader();
+            await setupAuth();
             loadCartFromStorage();
             fetchMenu();
             showPage('home-page');
+            hideLoader();
         });
 
     </script>
 </body>
 </html>
+

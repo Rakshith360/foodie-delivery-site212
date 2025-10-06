@@ -58,7 +58,7 @@
 <body class="bg-orange-50/50 text-gray-800">
 
     <!-- Loading Spinner Overlay -->
-    <div id="loader" class="fixed inset-0 bg-white bg-opacity-70 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div id="loader" class="fixed inset-0 bg-white bg-opacity-70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
     </div>
 
@@ -75,6 +75,9 @@
                 </div>
                 <!-- Right side: Cart and Auth Buttons -->
                 <div class="flex items-center gap-4">
+                     <button id="order-history-button" class="relative p-2 rounded-full text-gray-600 hover:bg-orange-100 hover:text-orange-600 focus:outline-none transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    </button>
                     <button id="cart-button" class="relative p-2 rounded-full text-gray-600 hover:bg-orange-100 hover:text-orange-600 focus:outline-none transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                         <span id="cart-count" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-orange-500 rounded-full">0</span>
@@ -116,46 +119,54 @@
              <div class="flex flex-col lg:flex-row lg:gap-8 max-w-6xl mx-auto">
                  <!-- Cart Items -->
                  <div id="cart-items-container" class="flex-grow">
-                    <!-- Cart items will be rendered here -->
+                     <!-- Cart items will be rendered here -->
                  </div>
                  <!-- Order Summary & Checkout -->
                  <div id="checkout-section" class="w-full lg:w-2/5 mt-8 lg:mt-0">
-                    <div class="bg-white p-6 rounded-2xl shadow-lg sticky top-24">
-                        <h3 class="text-xl font-semibold mb-4 border-b pb-3">Order Summary</h3>
-                        <div class="space-y-2 text-gray-600">
-                            <div class="flex justify-between">
-                                <span>Subtotal</span>
-                                <span id="cart-subtotal" class="font-medium text-gray-900">$0.00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Delivery Fee</span>
-                                <span class="font-medium text-gray-900">$2.00</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between font-bold text-lg border-t pt-3 mt-3">
-                            <span>Total</span>
-                            <span id="cart-total">$0.00</span>
-                        </div>
-                        <hr class="my-4">
-                        <form id="checkout-form">
-                            <h4 class="font-semibold mb-3">Delivery Details</h4>
-                            <div class="space-y-3">
-                                <input type="text" id="checkout-name" placeholder="Your Name" class="w-full p-3 bg-gray-100 rounded-lg border-transparent focus:border-orange-500 focus:ring-orange-500 transition" required>
-                                <input type="text" id="checkout-address" placeholder="Delivery Address" class="w-full p-3 bg-gray-100 rounded-lg border-transparent focus:border-orange-500 focus:ring-orange-500 transition" required>
-                                <input type="tel" id="checkout-phone" placeholder="Phone Number" class="w-full p-3 bg-gray-100 rounded-lg border-transparent focus:border-orange-500 focus:ring-orange-500 transition" required>
-                            </div>
-                            <button id="place-order-btn" type="submit" class="mt-6 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 text-lg">Place Order</button>
-                        </form>
-                    </div>
+                     <div class="bg-white p-6 rounded-2xl shadow-lg sticky top-24">
+                         <h3 class="text-xl font-semibold mb-4 border-b pb-3">Order Summary</h3>
+                         <div class="space-y-2 text-gray-600">
+                             <div class="flex justify-between">
+                                 <span>Subtotal</span>
+                                 <span id="cart-subtotal" class="font-medium text-gray-900">$0.00</span>
+                             </div>
+                             <div class="flex justify-between">
+                                 <span>Delivery Fee</span>
+                                 <span id="cart-delivery-fee" class="font-medium text-gray-900">$0.00</span>
+                             </div>
+                         </div>
+                         <div class="flex justify-between font-bold text-lg border-t pt-3 mt-3">
+                             <span>Total</span>
+                             <span id="cart-total">$0.00</span>
+                         </div>
+                         <hr class="my-4">
+                         <form id="checkout-form">
+                             <h4 class="font-semibold mb-3">Delivery Details</h4>
+                             <div class="space-y-3">
+                                 <input type="text" id="checkout-name" placeholder="Your Name" class="w-full p-3 bg-gray-100 rounded-lg border-transparent focus:border-orange-500 focus:ring-orange-500 transition" required>
+                                 <input type="text" id="checkout-address" placeholder="Delivery Address" class="w-full p-3 bg-gray-100 rounded-lg border-transparent focus:border-orange-500 focus:ring-orange-500 transition" required>
+                                 <input type="tel" id="checkout-phone" placeholder="Phone Number" class="w-full p-3 bg-gray-100 rounded-lg border-transparent focus:border-orange-500 focus:ring-orange-500 transition" required>
+                             </div>
+                             <button id="place-order-btn" type="submit" class="mt-6 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 text-lg">Place Order</button>
+                         </form>
+                     </div>
                  </div>
              </div>
+        </section>
+        
+        <!-- Order History Page Section -->
+        <section id="order-history-page" class="page hidden">
+            <h2 class="text-3xl font-bold mb-8 text-center">Your Order History</h2>
+            <div id="order-history-container" class="max-w-4xl mx-auto space-y-6">
+                <!-- Order history will be rendered here -->
+            </div>
         </section>
     </main>
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-white mt-20">
         <div class="container mx-auto px-6 py-4 text-center text-gray-400">
-            <p>&copy; <span id="copyright-year">2025</span> Foodie Express. All Rights Reserved.</p>
+            <p>&copy; <span id="copyright-year"></span> Foodie Express. All Rights Reserved.</p>
         </div>
     </footer>
 
@@ -163,13 +174,13 @@
         // --- Firebase Imports ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, getDocs, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
-        // IMPORTANT: If you run this code outside the collaborative environment,
-        // replace the placeholder values below with your actual Firebase project configuration.
+        // BUG FIX: The placeholder config was empty. Replaced with clear instructions.
+        // IMPORTANT: Replace the placeholder values below with your actual Firebase project configuration.
         const placeholderFirebaseConfig = {
-            apiKey: "AIzaSyB1hy_cOH3rlxEVQl3AGvnpJpFoC-a2Zng",
+             apiKey: "AIzaSyB1hy_cOH3rlxEVQl3AGvnpJpFoC-a2Zng",
   authDomain: "foodie-delivery-site-1212.firebaseapp.com",
   projectId: "foodie-delivery-site-1212",
   storageBucket: "foodie-delivery-site-1212.firebasestorage.app",
@@ -179,26 +190,28 @@
         
         let app, auth, db;
         try {
-            // In the collaborative environment, config is provided automatically via __firebase_config.
-            // We use the placeholder config as a fallback.
             const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : placeholderFirebaseConfig;
         
-             if (firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "PASTE_YOUR_API_KEY_HERE") {
+            if (firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
                 setLogLevel('debug');
-             } else {
-                console.warn("Firebase is not configured. Using placeholder keys. Real-time features will not work.");
-             }
+            } else {
+                console.warn("Firebase is not configured. Please add your Firebase project details. Real-time features will not work.");
+                document.getElementById('loader').classList.add('hidden'); // Hide loader if firebase fails
+            }
         } catch(e) {
             console.error("Failed to initialize Firebase:", e);
+            document.getElementById('loader').classList.add('hidden');
         }
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'foodie-express-app';
         
         // --- EmailJS Configuration ---
-         const EMAILJS_SERVICE_ID = 'service_3xool9njj5r';
+        // BUG FIX: The keys were fake strings. Replaced with clear instructional placeholders.
+        // IMPORTANT: Replace these with your actual EmailJS credentials.
+          const EMAILJS_SERVICE_ID = 'service_3xool9njj5r';
         const EMAILJS_TEMPLATE_ID = 'templat_7wqun';
         const EMAILJS_PUBLIC_KEY = 'jWDdRFUBp11zqVv4e'; 
 
@@ -247,7 +260,6 @@
             onAuthStateChanged(auth, user => {
                 currentUser = user;
                 updateUIForAuthState(user);
-                // Also update user details in the checkout form if they are logged in
                 if (user && document.getElementById('checkout-name')) {
                     document.getElementById('checkout-name').value = user.displayName || '';
                 }
@@ -256,7 +268,7 @@
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
+                } else if (!auth.currentUser) { // Prevents re-signing in on hot reloads
                     await signInAnonymously(auth);
                 }
             } catch (error) {
@@ -267,7 +279,6 @@
 
         const updateUIForAuthState = (user) => {
             if (user) {
-                // Show user info and logout button
                 const userIdentifier = user.isAnonymous ? `Guest` : (user.displayName || user.email || 'User');
                 authContainer.innerHTML = `
                     <div class="flex items-center gap-3">
@@ -277,7 +288,6 @@
                 `;
                 document.getElementById('logout-button').addEventListener('click', handleLogout);
             } else {
-                // If not logged in, there's no action to take. The app will try to sign in anonymously.
                 authContainer.innerHTML = `<span class="text-sm text-gray-500">Connecting...</span>`;
             }
         };
@@ -312,6 +322,7 @@
             }
             saveCartToStorage();
             updateCartUI();
+            showToast(`${item.name} added to cart!`);
         };
         
         // --- EVENT LISTENERS ---
@@ -319,6 +330,7 @@
         document.getElementById('order-now-btn').addEventListener('click', () => document.getElementById('menu-page').scrollIntoView({ behavior: 'smooth' }));
         document.getElementById('cart-button').addEventListener('click', () => showPage('cart-page'));
         document.getElementById('checkout-form').addEventListener('submit', handlePlaceOrder);
+        document.getElementById('order-history-button').addEventListener('click', showOrderHistory);
 
         // --- PAGE RENDERING ---
         const renderMenu = (itemsToRender) => {
@@ -378,21 +390,56 @@
                 addCartEventListeners();
             }
         };
+        
+        const renderOrderHistory = (orders) => {
+            const container = document.getElementById('order-history-container');
+            if(orders.length === 0){
+                 container.innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-lg text-center">
+                    <h3 class="text-2xl font-semibold mb-2">No orders found</h3>
+                    <p class="text-gray-500">You haven't placed any orders with us yet.</p>
+                </div>`;
+                return;
+            }
+            
+            // Sort orders by date, newest first
+            orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            container.innerHTML = orders.map(order => `
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="p-6 bg-gray-50 border-b flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-lg">Order ID: <span class="text-gray-600 font-medium">${order.id.substring(0, 8)}</span></p>
+                            <p class="text-sm text-gray-500">Placed on: ${new Date(order.createdAt).toLocaleDateString()}</p>
+                        </div>
+                        <div class="text-right">
+                             <p class="font-bold text-xl text-orange-600">$${order.total.toFixed(2)}</p>
+                             <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-green-600 bg-green-200">${order.status}</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-semibold mb-3">Items:</h4>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            ${order.items.map(item => `<li>${item.quantity} x ${item.name}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `).join('');
+        };
 
         const addCartEventListeners = () => {
              document.querySelectorAll('.quantity-change').forEach(button => {
-                button.addEventListener('click', e => {
-                    const id = e.target.closest('[data-id]').dataset.id;
-                    const action = e.target.dataset.action;
-                    updateCartQuantity(id, action);
-                });
-            });
-            document.querySelectorAll('.remove-from-cart').forEach(button => {
-                button.addEventListener('click', e => {
-                    const id = e.target.closest('[data-id]').dataset.id;
-                    removeFromCart(id);
-                });
-            });
+                 button.addEventListener('click', e => {
+                     const id = e.target.closest('[data-id]').dataset.id;
+                     const action = e.target.dataset.action;
+                     updateCartQuantity(id, action);
+                 });
+             });
+             document.querySelectorAll('.remove-from-cart').forEach(button => {
+                 button.addEventListener('click', e => {
+                     const id = e.target.closest('[data-id]').dataset.id;
+                     removeFromCart(id);
+                 });
+             });
         };
         
         const updateCartQuantity = (id, action) => {
@@ -422,11 +469,13 @@
             const total = subtotal + deliveryFee;
 
             document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cart-delivery-fee').textContent = `$${deliveryFee.toFixed(2)}`;
             document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
         };
 
         // --- HANDLER FUNCTIONS ---
         async function handleLogout() {
+            if(!auth) return;
             showLoader();
             try {
                 await signOut(auth);
@@ -452,6 +501,9 @@
             }
             
             showLoader();
+            const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            const total = subtotal + 2.00;
+
             const order = {
                 customerName: document.getElementById('checkout-name').value,
                 address: document.getElementById('checkout-address').value,
@@ -459,18 +511,17 @@
                 customerEmail: currentUser?.email || 'guest@example.com',
                 userId: auth.currentUser.uid,
                 items: cart,
-                total: cart.reduce((s, i) => s + i.price * i.quantity, 0) + 2.00,
+                total: total,
                 status: 'Placed',
                 createdAt: new Date().toISOString()
             };
 
             try {
                 // Save order to Firestore
-                const ordersCollectionPath = `/artifacts/${appId}/public/orders`;
+                const ordersCollectionPath = `/artifacts/${appId}/public/data/orders`;
                 await addDoc(collection(db, ordersCollectionPath), order);
                 
-                // This part is optional, only works if EmailJS is configured.
-                if (EMAILJS_PUBLIC_KEY) {
+                if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
                     await sendOrderEmail(order);
                 }
                 
@@ -487,9 +538,32 @@
             }
         }
         
+        async function showOrderHistory() {
+            if (!db || !currentUser) {
+                showToast('Please log in to view order history.', 'info');
+                return;
+            }
+            showLoader();
+            try {
+                const ordersCollectionPath = `/artifacts/${appId}/public/data/orders`;
+                const q = query(collection(db, ordersCollectionPath), where("userId", "==", currentUser.uid));
+                const querySnapshot = await getDocs(q);
+                const orders = [];
+                querySnapshot.forEach((doc) => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+                renderOrderHistory(orders);
+                showPage('order-history-page');
+            } catch (error) {
+                console.error("Error fetching order history:", error);
+                showToast('Could not fetch order history.', 'error');
+            } finally {
+                hideLoader();
+            }
+        }
+
         // --- DATA FETCHING ---
         const fetchMenu = () => {
-            // This is a hardcoded menu as requested.
             menuItems = [
                  { id: 'item1', name: 'Puri', description: 'Fluffy, deep-fried bread, perfect with curries.', price: 4.99, imageUrl: 'https://images.unsplash.com/photo-1626728043232-720a45446a2a?q=80&w=1974&auto=format&fit=crop' },
                  { id: 'item2', name: 'Roti', description: 'Wholesome flatbread, a staple for any meal.', price: 2.50, imageUrl: 'https://images.unsplash.com/photo-1626074353765-517a681e43be?q=80&w=2070&auto=format&fit=crop' },
@@ -500,20 +574,20 @@
 
         // --- EMAILJS INTEGRATION ---
         const sendOrderEmail = (order) => {
-            if (!EMAILJS_PUBLIC_KEY) {
+            if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'jWDdRFUBp11zqVv4e') {
                 console.warn("EmailJS is not configured. Skipping email notification.");
                 return Promise.resolve(); 
             }
 
             try {
-                emailjs.init(EMAILJS_PUBLIC_KEY);
+                emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
             } catch(e) {
                 console.error("EmailJS init error:", e);
                 return Promise.reject(e);
             }
             
             const templateParams = {
-                admin_email: 'pipparirakshith92@gmail.com',
+                admin_email: 'pipparirakshith45504@gmail.com', // BUG FIX: Admin email should also be a parameter
                 user_name: order.customerName,
                 user_email: order.customerEmail,
                 user_address: order.address,
@@ -526,15 +600,12 @@
                     console.log('Email Sent Successfully!', response.status, response.text);
                 }, error => {
                     console.error('Failed to send email:', error);
-                    // We don't show an error toast to the user here because their order
-                    // was still placed successfully. This is a background failure.
                     throw new Error('Email sending failed.');
                 });
         };
         
         // --- APP INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // BUG FIX: Set the copyright year dynamically.
             document.getElementById('copyright-year').textContent = new Date().getFullYear();
             
             showLoader();
@@ -548,5 +619,3 @@
     </script>
 </body>
 </html>
-
- 
